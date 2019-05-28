@@ -2,7 +2,8 @@ import os
 import sys
 import time
 import getch
-from termcolor import cprint, colored
+import random
+from termcolor import cprint
 
 def home_scr():
     os.system('clear')
@@ -79,7 +80,8 @@ def op2_scr():
                 if inp == 'y':
                     continue
                 elif inp == 'n':
-                    pass
+                    timer(paths)
+                    return
                 else:
                     cprint('Invalid option!', 'red', attrs = ['bold'])
                     cprint('\nPress any key to continue...', 'blue', attrs = ['bold'])
@@ -91,6 +93,7 @@ def op2_scr():
                 if getch.getch() == 'c':
                     return
     elif inp == 2:
+        paths = []
         while True:        
             cprint('Enter the path of the directory:\n', 'yellow', attrs = ['bold'])
             path = input()
@@ -101,6 +104,74 @@ def op2_scr():
                 cprint('\nPress any key to continue...\nPress \'c\' for cancel...', 'blue', attrs = ['bold'])
                 if getch.getch() == 'c':
                     return
-        pass
+        os.chdir(path)
+        lst = os.listdir()
+        for i in lst:
+            if os.path.isfile(i) and (i.endswith('.png') or i.endswith('.jpg') or i.endswith('.jpeg') or i.endswith('.svg')):
+                paths.append(os.path.join(path, i))
+        if len(paths) == 0:
+            cprint('There is no image file in the directory!', 'red', attrs = ['bold'])
+            cprint('Press any key to continue...\nPress \'c\' to cancel...', 'blue', attrs = ['bold'])
+            if getch.getch() == 'c':
+                return
+            op2_scr()
+        else:
+            timer(paths)
+    else:
+        cprint('Invalid option!', 'red', attrs = ['bold'])
+        cprint('\nPress any key to continue...', 'blue', attrs = ['bold'])
+        getch.getch()
+        return
 
-home_scr()
+def timer(lst):
+    cprint('\tSET TIMER', 'yellow', attrs = ['bold'])
+    cprint('Hour : ', 'blue', attrs = ['bold'])
+    hh = int(input())
+    cprint('Minute : ', 'blue', attrs = ['bold'])
+    mm = int(input())
+    cprint('Second : ', 'blue', attrs = ['bold'])
+    ss = int(input())
+    delay = (hh*3600)+(mm*60)+ss
+    cprint('\tCHOSE WALLPAPER', 'yellow', attrs = ['bold'])
+    cprint('1. Random')
+    cprint('2. Ascending')
+    cprint('3. Descending')
+    inp = int(input())
+    if inp == 1:
+        while True:
+            path = lst[random.randint(0, len(lst)-1)]
+            cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+            os.system('pcmanfm --set-wallpaper=\'{}\''.format(path))
+            time.sleep(delay)
+    elif inp == 2:
+        count = 0
+        while True:
+            path = lst[count]
+            count += 1
+            if count >= len(lst):
+                count = 0
+            cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+            os.system('pcmanfm --set-wallpaper=\'{}\''.format(path))
+            time.sleep(delay)
+    elif inp == 3:
+        count = len(lst)-1
+        while True:
+            path = lst[count]
+            count -= 1
+            if count < 0:
+                count = len(lst)-1
+            cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+            os.system('pcmanfm --set-wallpaper=\'{}\''.format(path))
+            time.sleep(delay+5)
+    else:
+        cprint('Invalid option !', 'red', attrs = ['bold'])
+        cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+        cprint('\nPress any key to continue...\nPress \'c\' to cancel...', 'blue', attrs = ['bold'])
+        if getch.getch() == 'c':
+            return
+        else:
+            timer(lst)
+
+if __name__ == '__main__':
+    if len(sys.argv) <= 1:
+        home_scr()
