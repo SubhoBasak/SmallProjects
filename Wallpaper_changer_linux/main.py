@@ -11,17 +11,14 @@ def home_scr():
     os.system('clear')
     cprint('1. Change Wallpaper', 'green', attrs = ['bold'])
     cprint('2. Auto-change Wallpaper', 'green', attrs = ['bold'])
-    cprint('3. Help', 'green', attrs = ['bold'])
-    cprint('4. Settings', 'green', attrs = ['bold'])
-    cprint('5. Exit', 'green', attrs = ['bold'])
+    cprint('3. Settings', 'green', attrs = ['bold'])
+    cprint('4. Exit', 'green', attrs = ['bold'])
     inp = int(input())
     if inp == 1:
         op1_scr()
     elif inp == 2:
         op2_scr()
     elif inp == 3:
-        help_scr()
-    elif inp == 4:
         cprint('1. GENOME', 'green', attrs = ['bold'])
         cprint('2. LXDE', 'green', attrs = ['bold'])
         cprint('3. Xfce', 'green', attrs = ['bold'])
@@ -51,7 +48,7 @@ def home_scr():
             cprint('Invalid option!', 'red', attrs = ['bold'])
             cprint('Press any key to continue...', 'blue', attrs = ['bold'])
             getch.getch()
-    elif inp == 5:
+    elif inp == 4:
         cprint('Do you really want to close the programme(y/n)?', 'cyan', attrs = ['bold'])
         inp = input()
         if inp == 'y':
