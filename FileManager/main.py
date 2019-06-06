@@ -30,10 +30,12 @@ def dir_view(path):
     return lst
 
 def add_cursor(lst, cursor_indx):
-    lst[cursor_indx] = termcolor.colored(lst[cursor_indx], on_color = 'on_cyan', attrs = ['bold'])
+    if len(lst) != 0:
+        lst[cursor_indx] = termcolor.colored(lst[cursor_indx], on_color = 'on_cyan', attrs = ['bold'])
 
 def remove_cursor(lst, cur_indx):
-    lst[cur_indx] = lst[cur_indx][9:]
+    if len(lst) != 0:
+        lst[cur_indx] = lst[cur_indx][9:-4]
 
 def move_cursor(lst, direction):
     global cursor_indx
@@ -66,11 +68,12 @@ def move_cursor(lst, direction):
             cursor_indx = 0
     add_cursor(lst, cursor_indx)
 
+    os.system('clear')
     for i in lst[view_start:view_end]:
         print(i)
 
 if __name__ == '__main__':
-    lst = dir_view('/home/pi/')
+    lst = dir_view(os.getcwd())
     add_cursor(lst, cursor_indx)
     move_cursor(lst, 1)
     while True:
@@ -79,3 +82,20 @@ if __name__ == '__main__':
             move_cursor(lst, 1)
         elif gtch == '-':
             move_cursor(lst, 0)
+        elif gtch == '\n':
+            path = lst[cursor_indx][18:-8]
+            if os.path.isdir(path):
+                remove_cursor(lst, cursor_indx)
+                os.chdir(path)
+                lst = dir_view(os.getcwd())
+                cursor_indx = -1
+                add_cursor(lst, cursor_indx)
+                move_cursor(lst, 1)
+        elif gtch == '\x7f':
+            path = os.path.abspath('..')
+            remove_cursor(lst, cursor_indx)
+            os.chdir(path)
+            lst = dir_view(os.getcwd())
+            cursor_indx = -1
+            add_cursor(lst, cursor_indx)
+            move_cursor(lst, 1)
