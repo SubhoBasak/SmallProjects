@@ -1,4 +1,5 @@
 import os
+import time
 import getch
 import termcolor
 
@@ -83,14 +84,15 @@ if __name__ == '__main__':
         elif gtch == '-':
             move_cursor(lst, 0)
         elif gtch == '\n':
-            path = lst[cursor_indx][18:-8]
-            if os.path.isdir(path):
-                remove_cursor(lst, cursor_indx)
-                os.chdir(path)
-                lst = dir_view(os.getcwd())
-                cursor_indx = -1
-                add_cursor(lst, cursor_indx)
-                move_cursor(lst, 1)
+            if len(lst) != 0:
+                path = lst[cursor_indx][18:-8]
+                if os.path.isdir(path) and path != '':
+                    remove_cursor(lst, cursor_indx)
+                    os.chdir(path)
+                    lst = dir_view(os.getcwd())
+                    cursor_indx = -1
+                    add_cursor(lst, cursor_indx)
+                    move_cursor(lst, 1)
         elif gtch == '\x7f':
             path = os.path.abspath('..')
             remove_cursor(lst, cursor_indx)
