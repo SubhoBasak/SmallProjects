@@ -40,44 +40,38 @@ def move_cursor(lst, direction):
     global view_start
     global view_end
 
+    col, row = os.get_terminal_size()
+    view_end = view_start+row-1
+
     remove_cursor(lst, cursor_indx)
     if direction == 0:
         cursor_indx -= 1
+        if cursor_indx < view_start:
+            view_start -= 1
+            view_end -= 1
+            if view_start < 0:
+                view_start = len(lst)-row+1
+                view_end = len(lst)
         if cursor_indx < 0:
             cursor_indx = len(lst)-1
     else:
         cursor_indx += 1
+        if cursor_indx > view_end-1:
+            view_start += 1
+            view_end += 1
+            if view_end > len(lst):
+                view_start = 0
+                view_end = row-1
         if cursor_indx > len(lst)-1:
             cursor_indx = 0
     add_cursor(lst, cursor_indx)
 
-    if cursor_indx < view_start:
-        view_start -= 1
-        view_end -= 1
-        if view_start < 0:
-            view_start = len(lst)-abs(view_start-view_end)-1
-            view_end = len(lst)-1
-
-    elif cursor_indx > view_end:
-        view_start += 1
-        view_end += 1
-        if view_end > len(lst)-1:
-            view_end = abs(view_start-view_end)
-            view_start = 0
-
-    view_end = manage_view(lst, view_start)
-
-def manage_view(lst, start):
-    col, row = os.get_terminal_size()
-    for i in lst[start:start+row-1]:
+    for i in lst[view_start:view_end]:
         print(i)
-    return start+row
 
 if __name__ == '__main__':
     lst = dir_view('/home/pi/')
     add_cursor(lst, cursor_indx)
-    col, row = os.get_terminal_size()
-    view_end = row
     move_cursor(lst, 1)
     while True:
         gtch = getch.getch()
