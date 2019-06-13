@@ -4,7 +4,12 @@ import getch
 import sqlite3
 from termcolor import colored, cprint
 
+col, row = os.get_terminal_size()
+
 cursor_indx = 0
+list_cursor_indx = 0
+start = 0
+end = row
 
 class database:
     def __init__(self):
@@ -24,8 +29,8 @@ class database:
         self.cursor = self.connect.cursor()
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS students (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
-    First_name VARCHAR(50),
-    Last_name VARCHAR(50),
+    First_name VARCHAR(10),
+    Last_name VARCHAR(10),
     Class INTEGER,
     Section VARCHAR(1),
     Date_of_birth TEXT,
@@ -136,7 +141,77 @@ def new_scr():
             return None
         return new_scr()
     os.system('clear')
-    return (None, fname, lname, clas, sec, dob, adrs, phn)
+    cprint('Name : ', 'yellow', end = '', attrs = ['bold'])
+    cprint(fname+' '+lname, 'cyan', attrs = ['bold'])
+    cprint('Class : ', 'yellow', end = '', attrs = ['bold'])
+    cprint(str(clas)+', '+sec, 'cyan', attrs = ['bold'])
+    cprint('Date of birth : ', 'yellow', end = '', attrs = ['bold'])
+    cprint(dob, 'cyan', attrs = ['bold'])
+    cprint('Address : ', 'yellow', end = '', attrs = ['bold'])
+    cprint(adrs, 'cyan', attrs = ['bold'])
+    cprint('Phone : ', 'yellow', end = '', attrs = ['bold'])
+    cprint(phn, 'cyan', attrs = ['bold'])
+    cprint('\n\nDo you rally want to save this record? (y/n)', 'magenta', attrs = ['bold'])
+    inp = input()
+    if inp == 'y':
+        return (None, fname, lname, clas, sec, dob, adrs, phn)
+    return None
+
+def add_list_cursor(lst, indx):
+    lst[indx] = list(lst[indx])
+    for i, j in enumerate(lst[indx]):
+        lst[indx][i] = colored(j, on_color = 'on_cyan')
+    lst[indx] = tuple(lst[indx])
+
+def remove_list_cursor(lst, indx):
+    lst[indx] = list(lst[indx])
+    for i, j in enumerate(lst[indx]):
+        lst[indx][i] = lst[indx][i][5:-4]
+    lst[indx] = tuple(lst[indx])
+
+def manage_list_view(lst, direction):
+    global list_cursor_indx
+    global start
+    global end
+    col, row = os.get_terminal_size()
+    row -= 2
+    remove_list_cursor(lst, list_cursor_indx)
+    if direction == 0:
+        list_cursor_indx -= 1
+        if list_cursor_indx < start:
+            start -= 1
+            end = start+row
+            if start < 0:
+                start = len(lst)-row-1
+                end = start+row
+        if list_cursor_indx < 0:
+            list_cursor_indx = len(lst)-1
+            start = len(lst)-row-1
+            end = start+row
+    else:
+        list_cursor_indx += 1
+        if list_cursor_indx > end:
+            end += 1
+            start += 1
+            if end >= len(lst):
+                start = 0
+                end = row
+        if list_cursor_indx >= len(lst):
+            list_cursor_indx = 0
+            start = 0
+            end = row
+    add_list_cursor(lst, list_cursor_indx)
+    cprint('ID', 'red', end = '', attrs = ['bold'])
+    cprint('   Name   ', 'green', end = '', attrs = ['bold'])
+    cprint('Class', 'magenta', end = '', attrs = ['bold'])
+    cprint('Section', 'blue', end = '', attrs = ['bold'])
+    cprint('Date of birth', 'yellow', end = '', attrs = ['bold'])
+    cprint('  Address  ', 'white', end = '', attrs = ['bold'])
+    cprint('   Phone   ', 'cyan', attrs = ['bold'])
+    os.system('clear')
+    for i in lst:
+        a, b, c, d, e, f, g, h = i
+        print(a, b, c, d, e, f, g, h)
 
 if __name__ == '__main__':
     welcome_scr()
@@ -167,7 +242,50 @@ if __name__ == '__main__':
                 for i in lst:
                     print(i)
             elif cursor_indx == 1:
-                for i in data_base.all_list():
+                tmp_lst = data_base.all_list()
+                for i, j in enumerate(tmp_lst):
+                    a, b, c, d, e, f, g, h = j
+                    a = colored(a, 'red', attrs = ['bold'])
+                    b = colored(b, 'green', attrs = ['bold'])
+                    c = colored(c, 'green', attrs = ['bold'])
+                    d = colored(d, 'magenta', attrs = ['bold'])
+                    e = colored(e, 'blue', attrs = ['bold'])
+                    f = colored(f, 'yellow', attrs = ['bold'])
+                    g = colored(g, 'white', attrs = ['bold'])
+                    h = colored(h, 'cyan', attrs = ['bold'])
+                    tmp_lst[i] = (a, b, c, d, e, f, g, h)
+                os.system('clear')
+                add_list_cursor(tmp_lst, list_cursor_indx)
+                for i in tmp_lst:
+                    for j in i:
+                        print(j, end = ' ')
+                    print()
+                while True:
+                    inp = getch.getch()
+                    if inp == '+':
+                        manage_list_view(tmp_lst, 1)
+                    elif inp == '-':
+                        manage_list_view(tmp_lst, 0)
+                    elif inp == '\n':
+                        ID, fname, lname, clas, sec, dob, adrs, phn = tmp_lst[list_cursor_indx]
+                        os.system('clear')
+                        cprint('ID : ', 'yellow', end = '', attrs = ['bold'])
+                        cprint(ID, 'cyan', attrs = ['bold'])
+                        cprint('Name : ', 'yellow', end = '', attrs = ['bold'])
+                        cprint(fname+' '+lname, 'cyan', attrs = ['bold'])
+                        cprint('Class : ', 'yellow', end = '', attrs = ['bold'])
+                        cprint(str(clas)+', '+sec, 'cyan', attrs = ['bold'])
+                        cprint('Date of birth : ', 'yellow', end = '', attrs = ['bold'])
+                        cprint(dob, 'cyan', attrs = ['bold'])
+                        cprint('Address : ', 'yellow', end = '', attrs = ['bold'])
+                        cprint(adrs, 'cyan', attrs = ['bold'])
+                        cprint('Phone : ', 'yellow', end = '', attrs = ['bold'])
+                        cprint(phn, 'cyan', attrs = ['bold'])
+                        cprint('Press any key to continue...', 'blue', attrs = ['bold'])
+                        getch.getch()
+                        break
+                os.system('clear')
+                for i in lst:
                     print(i)
             elif cursor_indx == 4:
                 os.system('clear')
