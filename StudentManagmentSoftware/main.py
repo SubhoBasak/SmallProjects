@@ -7,9 +7,9 @@ from termcolor import colored, cprint
 col, row = os.get_terminal_size()
 
 cursor_indx = 0
-list_cursor_indx = 0
+list_cursor_indx = None
 start = 0
-end = row
+end = row-2
 
 class database:
     def __init__(self):
@@ -105,13 +105,16 @@ def move_cursor(lst, direction):
         cursor_indx += 1
         if cursor_indx > len(lst)-1:
             cursor_indx = 0
+    os.system('clear')
     add_cursor(lst, cursor_indx)
-    os.system('clear')
+    cprint('='*col, 'yellow', attrs = ['bold'])
     for i in lst:
-        print(i)
+        print(x, i, ' '*(col-len(i[5:-4])-4), x)
+    cprint('='*col, 'yellow', attrs = ['bold'])
 
-def new_scr():
+def add_scr():
     os.system('clear')
+    
     cprint('First name : ', 'yellow', end = '', attrs = ['bold'])
     fname = input()
     cprint('Last name : ', 'yellow', end = '', attrs = ['bold'])
@@ -126,7 +129,7 @@ def new_scr():
         cprint('Press any key to continue...\nPress c to cancel...', 'blue', attrs = ['bold'])
         if getch.getch() == 'c':
             return None
-        return new_scr()
+        return add_scr()
     cprint('Section : ', 'yellow', end = '', attrs = ['bold'])
     sec = input()
     cprint('Address : ', 'yellow', end = '', attrs = ['bold'])
@@ -139,7 +142,7 @@ def new_scr():
         cprint('Press any key to continue...\nPress c to cancel...', 'blue', attrs = ['bold'])
         if getch.getch() == 'c':
             return None
-        return new_scr()
+        return add_scr()
     os.system('clear')
     cprint('Name : ', 'yellow', end = '', attrs = ['bold'])
     cprint(fname+' '+lname, 'cyan', attrs = ['bold'])
@@ -174,42 +177,40 @@ def manage_list_view(lst, direction):
     global start
     global end
     col, row = os.get_terminal_size()
-    row -= 2
+    row -= 3
     remove_list_cursor(lst, list_cursor_indx)
     if direction == 0:
         list_cursor_indx -= 1
         if list_cursor_indx < start:
             start -= 1
             end = start+row
-            if start < 0:
-                start = len(lst)-row-1
-                end = start+row
         if list_cursor_indx < 0:
             list_cursor_indx = len(lst)-1
-            start = len(lst)-row-1
+            start = len(lst)-row
             end = start+row
-    else:
-        list_cursor_indx += 1
-        if list_cursor_indx > end:
-            end += 1
-            start += 1
-            if end >= len(lst):
+            if len(lst) < row:
                 start = 0
                 end = row
+    else:
+        list_cursor_indx += 1
+        if list_cursor_indx >= end:
+            end += 1
+            start += 1
         if list_cursor_indx >= len(lst):
             list_cursor_indx = 0
             start = 0
             end = row
     add_list_cursor(lst, list_cursor_indx)
-    cprint('ID', 'red', end = '', attrs = ['bold'])
-    cprint('   Name   ', 'green', end = '', attrs = ['bold'])
-    cprint('Class', 'magenta', end = '', attrs = ['bold'])
-    cprint('Section', 'blue', end = '', attrs = ['bold'])
-    cprint('Date of birth', 'yellow', end = '', attrs = ['bold'])
-    cprint('  Address  ', 'white', end = '', attrs = ['bold'])
-    cprint('   Phone   ', 'cyan', attrs = ['bold'])
     os.system('clear')
-    for i in lst:
+    cprint('ID', 'red', end = ' ', attrs = ['bold'])
+    cprint(' Name ', 'green', end = ' ', attrs = ['bold'])
+    cprint('Class', 'magenta', end = ' ', attrs = ['bold'])
+    cprint('Section', 'blue', end = ' ', attrs = ['bold'])
+    cprint('Date of birth', 'yellow', end = ' ', attrs = ['bold'])
+    cprint('Address', 'white', end = ' ', attrs = ['bold'])
+    cprint('Phone   ', 'cyan', attrs = ['bold'])
+    cprint('='*col, 'red', attrs = ['bold'])
+    for i in lst[start:end]:
         a, b, c, d, e, f, g, h = i
         print(a, b, c, d, e, f, g, h)
 
@@ -219,13 +220,16 @@ if __name__ == '__main__':
     data_base = database()
     lst = main_menu()
     add_cursor(lst, cursor_indx)
+    x = colored('||', 'yellow', attrs = ['bold'])
+    cprint('='*col, 'yellow', attrs = ['bold'])
     for i in lst:
-        print(i)
+        print(x, i, ' '*(col-len(i[5:-4])-4), x)
+    cprint('='*col, 'yellow', attrs = ['bold'])
     while True:
         inp = getch.getch()
         if inp == '\n':
             if cursor_indx == 0:
-                data = new_scr()
+                data = add_scr()
                 if data !=  None:
                     data_base.insert_new(data)
                     cprint('Added new record successfully !', 'cyan', attrs = ['bold'])
@@ -239,8 +243,10 @@ if __name__ == '__main__':
                 cursor_indx = 0
                 lst = main_menu()
                 add_cursor(lst, cursor_indx)
+                cprint('='*col, 'yellow', attrs = ['bold'])
                 for i in lst:
-                    print(i)
+                    print(x, i, ' '*(col-len(i[5:-4])-4), x)
+                cprint('='*col, 'yellow', attrs = ['bold'])
             elif cursor_indx == 1:
                 tmp_lst = data_base.all_list()
                 for i, j in enumerate(tmp_lst):
@@ -254,12 +260,9 @@ if __name__ == '__main__':
                     g = colored(g, 'white', attrs = ['bold'])
                     h = colored(h, 'cyan', attrs = ['bold'])
                     tmp_lst[i] = (a, b, c, d, e, f, g, h)
-                os.system('clear')
+                list_cursor_indx = len(tmp_lst)-1
                 add_list_cursor(tmp_lst, list_cursor_indx)
-                for i in tmp_lst:
-                    for j in i:
-                        print(j, end = ' ')
-                    print()
+                manage_list_view(tmp_lst, 1)
                 while True:
                     inp = getch.getch()
                     if inp == '+':
@@ -284,9 +287,13 @@ if __name__ == '__main__':
                         cprint('Press any key to continue...', 'blue', attrs = ['bold'])
                         getch.getch()
                         break
+                    elif inp == '\x7f':
+                        break
                 os.system('clear')
+                cprint('='*col, 'yellow', attrs = ['bold'])
                 for i in lst:
-                    print(i)
+                    print(x, i, ' '*(col-len(i[5:-4])-4), x)
+                cprint('='*col, 'yellow', attrs = ['bold'])
             elif cursor_indx == 4:
                 os.system('clear')
                 cprint('Do you rally want to exit? (y/n)', 'red', attrs = ['bold'])
@@ -304,8 +311,10 @@ if __name__ == '__main__':
                 cursor_indx = 0
                 lst = main_menu()
                 add_cursor(lst, cursor_indx)
+                cprint('='*col, 'yellow', attrs = ['bold'])
                 for i in lst:
-                    print(i)
+                    print(x, i, ' '*(col-len(i[5:-4])-4), x)
+                cprint('='*col, 'yellow', attrs = ['bold'])
         elif inp == '+':
             move_cursor(lst, 1)
         elif inp == '-':
