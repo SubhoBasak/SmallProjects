@@ -67,7 +67,7 @@ class database:
             self.cursor.execute(''' UPDATE students SET Date_of_birth = :dob WHERE ID = :ID ''', {'ID': a, 'dob': f})
         if len(g) != 0:
             self.cursor.execute(''' UPDATE students SET Address = :adrs WHERE ID = :ID ''', {'ID': a, 'adrs': g})
-        if len(str(h)):
+        if len(str(h)) != 0:
             self.cursor.execute(''' UPDATE students SET Phone = :phn WHERE ID = :ID ''', {'ID': a, 'phn': h})
         self.connect.commit()
 
