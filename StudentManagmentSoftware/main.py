@@ -47,10 +47,10 @@ class database:
         return self.cursor.fetchall()
 
     def search(self, data):
-        a, b, c, d, e, g= data
+        a, b, c, d, e, f= data
         data = {'id': a, 'first': b, 'last': c, 'clas': d, 'sec': e, 'phn': f}
-        self.cursor.execute(''' SELECT * FORM students WHERE ID LIKE :id, First_name LIKE :first, Last_name LIKE :last,
-    Class LIKE :clas, Section LIKE :sec, Phone LIKE :phn''', data)
+        self.cursor.execute(''' SELECT * FROM students WHERE ID LIKE :id AND First_name LIKE :first AND Last_name LIKE :last AND
+    Class LIKE :clas AND Section LIKE :sec AND Phone LIKE :phn''', data)
         return self.cursor.fetchall()
 
     def update_old(self, data):
@@ -176,6 +176,7 @@ def manage_list_view(lst, direction):
     global list_cursor_indx
     global start
     global end
+    global col
     col, row = os.get_terminal_size()
     row -= 3
     remove_list_cursor(lst, list_cursor_indx)
@@ -213,6 +214,48 @@ def manage_list_view(lst, direction):
     for i in lst[start:end]:
         a, b, c, d, e, f, g, h = i
         print(a, b, c, d, e, f, g, h)
+
+def search_scr():
+    os.system('clear')
+    cprint('Leave empty if you dont want that option as search key', 'yellow', attrs = ['bold'])
+    cprint('ID : ', 'green', attrs = ['bold'])
+    ID = input()+'%'
+    cprint('First name : ', 'green', attrs = ['bold'])
+    fname = input()+'%'
+    cprint('Last name : ', 'green', attrs = ['bold'])
+    lname = input()+'%'
+    cprint('Class : ', 'green', attrs = ['bold'])
+    clas = input()+'%'
+    cprint('Section : ', 'green', attrs = ['bold'])
+    sec = input()+'%'
+    cprint('Phone : ', 'green', attrs = ['bold'])
+    phn = input()+'%'
+    search_key = (ID, fname, lname, clas, sec, phn)
+    tmp_lst = data_base.search(search_key)
+
+    os.system('clear')
+    cprint('ID', 'red', end = ' ', attrs = ['bold'])
+    cprint(' Name ', 'green', end = ' ', attrs = ['bold'])
+    cprint('Class', 'magenta', end = ' ', attrs = ['bold'])
+    cprint('Section', 'blue', end = ' ', attrs = ['bold'])
+    cprint('Date of birth', 'yellow', end = ' ', attrs = ['bold'])
+    cprint('Address', 'white', end = ' ', attrs = ['bold'])
+    cprint('Phone   ', 'cyan', attrs = ['bold'])
+    cprint('='*col, 'red', attrs = ['bold'])
+    for i, j in enumerate(tmp_lst):
+        a, b, c, d, e, f, g, h = j
+        a = colored(a, 'red', attrs = ['bold'])
+        b = colored(b, 'green', attrs = ['bold'])
+        c = colored(c, 'green', attrs = ['bold'])
+        d = colored(d, 'magenta', attrs = ['bold'])
+        e = colored(e, 'blue', attrs = ['bold'])
+        f = colored(f, 'yellow', attrs = ['bold'])
+        g = colored(g, 'white', attrs = ['bold'])
+        h = colored(h, 'cyan', attrs = ['bold'])
+        print(a, b, c, d, e, f, g, h)
+    cprint('='*col, 'red', attrs = ['bold'])
+    cprint('Press any key to continue...', 'blue', attrs = ['bold'])
+    getch.getch()
 
 if __name__ == '__main__':
     welcome_scr()
@@ -290,6 +333,15 @@ if __name__ == '__main__':
                     elif inp == '\x7f':
                         break
                 os.system('clear')
+                cprint('='*col, 'yellow', attrs = ['bold'])
+                for i in lst:
+                    print(x, i, ' '*(col-len(i[5:-4])-4), x)
+                cprint('='*col, 'yellow', attrs = ['bold'])
+            elif cursor_indx == 3:
+                search_scr()
+                cursor_indx = 0
+                lst = main_menu()
+                add_cursor(lst, cursor_indx)
                 cprint('='*col, 'yellow', attrs = ['bold'])
                 for i in lst:
                     print(x, i, ' '*(col-len(i[5:-4])-4), x)
