@@ -216,6 +216,13 @@ def manage_list_view(lst, direction):
         print(a, b, c, d, e, f, g, h)
 
 def search_scr():
+    global start
+    global end
+    global list_cursor_indx
+
+    start = 0
+    list_cursor_indx = 0
+
     os.system('clear')
     cprint('Leave empty if you dont want that option as search key', 'yellow', attrs = ['bold'])
     cprint('ID : ', 'green', attrs = ['bold'])
@@ -233,15 +240,6 @@ def search_scr():
     search_key = (ID, fname, lname, clas, sec, phn)
     tmp_lst = data_base.search(search_key)
 
-    os.system('clear')
-    cprint('ID', 'red', end = ' ', attrs = ['bold'])
-    cprint(' Name ', 'green', end = ' ', attrs = ['bold'])
-    cprint('Class', 'magenta', end = ' ', attrs = ['bold'])
-    cprint('Section', 'blue', end = ' ', attrs = ['bold'])
-    cprint('Date of birth', 'yellow', end = ' ', attrs = ['bold'])
-    cprint('Address', 'white', end = ' ', attrs = ['bold'])
-    cprint('Phone   ', 'cyan', attrs = ['bold'])
-    cprint('='*col, 'red', attrs = ['bold'])
     for i, j in enumerate(tmp_lst):
         a, b, c, d, e, f, g, h = j
         a = colored(a, 'red', attrs = ['bold'])
@@ -252,10 +250,39 @@ def search_scr():
         f = colored(f, 'yellow', attrs = ['bold'])
         g = colored(g, 'white', attrs = ['bold'])
         h = colored(h, 'cyan', attrs = ['bold'])
-        print(a, b, c, d, e, f, g, h)
-    cprint('='*col, 'red', attrs = ['bold'])
-    cprint('Press any key to continue...', 'blue', attrs = ['bold'])
-    getch.getch()
+        tmp_lst[i] = (a, b, c, d, e, f, g, h)
+    
+    list_cursor_indx = len(tmp_lst)-1
+    add_list_cursor(tmp_lst, list_cursor_indx)
+    manage_list_view(tmp_lst, 1)
+    while True:
+        inp = getch.getch()
+        if inp == '+':
+            manage_list_view(tmp_lst, 1)
+        elif inp == '-':
+            manage_list_view(tmp_lst, 0)
+        elif inp == '\x7f':
+            break
+        elif inp == '\n':
+            remove_list_cursor(tmp_lst, list_cursor_indx)
+            ID, fname, lname, clas, sec, dob, adrs, phn = tmp_lst[list_cursor_indx]
+            os.system('clear')
+            cprint('ID : ', 'yellow', end = '', attrs = ['bold'])
+            cprint(ID, 'cyan', attrs = ['bold'])
+            cprint('Name : ', 'yellow', end = '', attrs = ['bold'])
+            cprint(fname+' '+lname, 'cyan', attrs = ['bold'])
+            cprint('Class : ', 'yellow', end = '', attrs = ['bold'])
+            cprint(str(clas)+', '+sec, 'cyan', attrs = ['bold'])
+            cprint('Date of birth : ', 'yellow', end = '', attrs = ['bold'])
+            cprint(dob, 'cyan', attrs = ['bold'])
+            cprint('Address : ', 'yellow', end = '', attrs = ['bold'])
+            cprint(adrs, 'cyan', attrs = ['bold'])
+            cprint('Phone : ', 'yellow', end = '', attrs = ['bold'])
+            cprint(phn, 'cyan', attrs = ['bold'])
+            cprint('Press any key to continue...', 'blue', attrs = ['bold'])
+            getch.getch()
+            add_list_cursor(tmp_lst, list_cursor_indx)
+            break
 
 if __name__ == '__main__':
     welcome_scr()
@@ -313,6 +340,7 @@ if __name__ == '__main__':
                     elif inp == '-':
                         manage_list_view(tmp_lst, 0)
                     elif inp == '\n':
+                        remove_list_cursor(tmp_lst, list_cursor_indx)
                         ID, fname, lname, clas, sec, dob, adrs, phn = tmp_lst[list_cursor_indx]
                         os.system('clear')
                         cprint('ID : ', 'yellow', end = '', attrs = ['bold'])
@@ -329,6 +357,7 @@ if __name__ == '__main__':
                         cprint(phn, 'cyan', attrs = ['bold'])
                         cprint('Press any key to continue...', 'blue', attrs = ['bold'])
                         getch.getch()
+                        add_list_cursor(tmp_lst, list_cursor_indx)
                         break
                     elif inp == '\x7f':
                         break
