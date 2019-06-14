@@ -54,11 +54,21 @@ class database:
         return self.cursor.fetchall()
 
     def update_old(self, data):
-        #transfer the parameter data from tuple to dictionary
         a, b, c, d, e, f, g, h = data
-        data = {'id': a, 'first': b, 'last': c, 'clas': d, 'sec': e, 'dob': f, 'adrs': g, 'phn': h} 
-        self.cursor.execute('''UPDATE students SET First_name = :first, Last_name = :last,
-    Class = :clas, Section = :sec, Date_of_birth = :dob, Address = :adrs, Phone = :phn WHERE ID = :id''', data)
+        if len(b) != 0:
+            self.cursor.execute(''' UPDATE students SET First_name = :fname WHERE ID = :ID ''', {'ID': a, 'fname': b})
+        if len(c) != 0:
+            self.cursor.execute(''' UPDATE students SET Last_name = :lname WHERE ID = :ID ''', {'ID': a, 'lname': c})
+        if len(str(d)) != 0:
+            self.cursor.execute(''' UPDATE students SET Class = :clas WHERE ID = :ID ''', {'ID': a, 'clas': d})
+        if len(e) != 0:
+            self.cursor.execute(''' UPDATE students SET Section = :sec WHERE ID = :ID ''', {'ID': a, 'sec': e})
+        if len(f) != 0:
+            self.cursor.execute(''' UPDATE students SET Date_of_birth = :dob WHERE ID = :ID ''', {'ID': a, 'dob': f})
+        if len(g) != 0:
+            self.cursor.execute(''' UPDATE students SET Address = :adrs WHERE ID = :ID ''', {'ID': a, 'adrs': g})
+        if len(str(h)):
+            self.cursor.execute(''' UPDATE students SET Phone = :phn WHERE ID = :ID ''', {'ID': a, 'phn': h})
         self.connect.commit()
 
 def welcome_scr():
@@ -123,7 +133,9 @@ def add_scr():
     dob = input()
     cprint('Class : ', 'yellow', end = '', attrs = ['bold'])
     try:
-        clas = int(input())
+        clas = input()
+        if len(clas) != 0:
+            clas = int(clas)
     except:
         cprint('Entered invalid input !', 'red', attrs = ['bold'])
         cprint('Press any key to continue...\nPress c to cancel...', 'blue', attrs = ['bold'])
@@ -136,7 +148,9 @@ def add_scr():
     adrs = input()
     cprint('Phone : ', 'yellow', end = '', attrs = ['bold'])
     try:
-        phn = int(input())
+        phn = input()
+        if len(phn) != 0:
+            phn = int(phn)
     except:
         cprint('Entered invalid input !', 'red', attrs = ['bold'])
         cprint('Press any key to continue...\nPress c to cancel...', 'blue', attrs = ['bold'])
@@ -154,6 +168,21 @@ def add_scr():
     cprint(adrs, 'cyan', attrs = ['bold'])
     cprint('Phone : ', 'yellow', end = '', attrs = ['bold'])
     cprint(phn, 'cyan', attrs = ['bold'])
+    tmp_lst = data_base.search(('%', fname, lname, clas, sec, phn))
+    if len(tmp_lst) != 0:
+        cprint('\nWarning! there are {} records same as this one.\nMake sure that these are not same student...\n'.format(len(tmp_lst)), 'red', attrs = ['bold'])
+        for i in tmp_lst:
+            a, b, c, d, e, f, g, h = i
+            a = colored(a, 'red', attrs = ['bold'])
+            b = colored(b, 'green', attrs = ['bold'])
+            c = colored(c, 'green', attrs = ['bold'])
+            d = colored(d, 'magenta', attrs = ['bold'])
+            e = colored(e, 'blue', attrs = ['bold'])
+            f = colored(f, 'yellow', attrs = ['bold'])
+            g = colored(g, 'white', attrs = ['bold'])
+            h = colored(h, 'cyan', attrs = ['bold'])
+            print(a, b, c, d, e, f, g, h)
+
     cprint('\n\nDo you rally want to save this record? (y/n)', 'magenta', attrs = ['bold'])
     inp = input()
     if inp == 'y':
@@ -303,13 +332,11 @@ if __name__ == '__main__':
                 if data !=  None:
                     data_base.insert_new(data)
                     cprint('Added new record successfully !', 'cyan', attrs = ['bold'])
-                    cprint('Press any key to continue...', 'blue', attrs = ['bold'])
-                    getch.getch()
                 else:
                     os.system('clear')
                     cprint('New record adding failed !', 'red', attrs = ['bold'])
-                    cprint('Press any key to continue...', 'blue', attrs = ['bold'])
-                    getch.getch()
+                cprint('Press any key to continue...', 'blue', attrs = ['bold'])
+                getch.getch()
                 cursor_indx = 0
                 lst = main_menu()
                 add_cursor(lst, cursor_indx)
@@ -330,6 +357,7 @@ if __name__ == '__main__':
                     g = colored(g, 'white', attrs = ['bold'])
                     h = colored(h, 'cyan', attrs = ['bold'])
                     tmp_lst[i] = (a, b, c, d, e, f, g, h)
+                start = 0
                 list_cursor_indx = len(tmp_lst)-1
                 add_list_cursor(tmp_lst, list_cursor_indx)
                 manage_list_view(tmp_lst, 1)
@@ -362,6 +390,34 @@ if __name__ == '__main__':
                     elif inp == '\x7f':
                         break
                 os.system('clear')
+                cprint('='*col, 'yellow', attrs = ['bold'])
+                for i in lst:
+                    print(x, i, ' '*(col-len(i[5:-4])-4), x)
+                cprint('='*col, 'yellow', attrs = ['bold'])
+            elif cursor_indx == 2:
+                cprint('Enter the ID of the student to be update : ', 'cyan', end = '', attrs = ['bold'])
+                try:
+                    tmp_id = int(input())
+                    data_base.cursor.execute('''SELECT * FROM students WHERE ID = :ID ''', {'ID': tmp_id})
+                    if len(data_base.cursor.fetchall()) == 1:                        
+                        data = add_scr()
+                        if data !=  None:
+                            a, b, c, d, e, f, g, h = data
+                            data_base.update_old((tmp_id, b, c, d, e, f, g, h))
+                            cprint('Update the record successfully !', 'cyan', attrs = ['bold'])
+                        else:
+                            os.system('clear')
+                            cprint('Record editing failed !', 'red', attrs = ['bold'])
+                            cprint('Old data will not be affected for that.\nThe data will be same as previous.', 'magenta', attrs = ['bold'])
+                    else:
+                        cprint('There is no record with ID {} !'.format(tmp_id), 'red', attrs = ['bold'])                            
+                except:
+                    cprint('Entered invalid input !', 'red', attrs = ['bold'])
+                cprint('Press any key to continue...', 'blue', attrs = ['bold'])
+                getch.getch()
+                cursor_indx = 0
+                lst = main_menu()
+                add_cursor(lst, cursor_indx)
                 cprint('='*col, 'yellow', attrs = ['bold'])
                 for i in lst:
                     print(x, i, ' '*(col-len(i[5:-4])-4), x)
