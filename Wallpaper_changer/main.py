@@ -199,59 +199,83 @@ def op2_scr():
             cprint('\nPress any key to continue...', 'blue', attrs = ['bold'])
             getch.getch()
             return
+    except: # In that try block if user entered any string value at the option chosing stage then the value error will be occured. And if that happened then this block of code will run and the function will be terminated
+        cprint('Invalid input !', 'red', attrs = ['bold'])
+        cprint('\nPress any key to continue...', 'blue', attrs = ['bold'])
+        getch.getch()
 
+# Timer function, it's task is if the user chose the auto change option then it will change the given wallpapers time to time
 def timer(lst):
-    cprint('\tSET TIMER', 'yellow', attrs = ['bold'])
-    cprint('Hour : ', 'blue', attrs = ['bold'])
-    hh = int(input())
-    cprint('Minute : ', 'blue', attrs = ['bold'])
-    mm = int(input())
-    cprint('Second : ', 'blue', attrs = ['bold'])
-    ss = int(input())
-    delay = (hh*3600)+(mm*60)+ss
-    cprint('\tCHOSE WALLPAPER', 'yellow', attrs = ['bold'])
-    cprint('1. Random')
-    cprint('2. Ascending')
-    cprint('3. Descending')
-    inp = int(input())
-    if inp == 1:
-        while True:
-            path = lst[random.randint(0, len(lst)-1)]
-            cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
-            os.system('pcmanfm --set-wallpaper=\'{}\''.format(path))
-            time.sleep(delay)
-    elif inp == 2:
-        count = 0
-        while True:
-            path = lst[count]
-            count += 1
-            if count >= len(lst):
-                count = 0
-            cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
-            os.system('pcmanfm --set-wallpaper=\'{}\''.format(path))
-            time.sleep(delay)
-    elif inp == 3:
-        count = len(lst)-1
-        while True:
-            path = lst[count]
-            count -= 1
-            if count < 0:
-                count = len(lst)-1
-            cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
-            os.system('pcmanfm --set-wallpaper=\'{}\''.format(path))
-            time.sleep(delay+5)
-    else:
-        cprint('Invalid option !', 'red', attrs = ['bold'])
-        cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
-        cprint('\nPress any key to continue...\nPress \'c\' to cancel...', 'blue', attrs = ['bold'])
-        if getch.getch() == 'c':
-            return
+
+    try:
+    # First it take the delay time to change the wallpaper, in hour, minut and second unit
+        cprint('\tSET TIMER', 'yellow', attrs = ['bold'])
+        cprint('Hour : ', 'blue', attrs = ['bold'])
+        hh = int(input())
+        cprint('Minute : ', 'blue', attrs = ['bold'])
+        mm = int(input())
+        cprint('Second : ', 'blue', attrs = ['bold'])
+        ss = int(input())
+
+    # Then it convert the hour minut and second to only second
+        delay = (hh*3600)+(mm*60)+ss
+
+    # Then it aske the user that in which way the wallpapers have to change (random selection or ascending order or descending order)
+        cprint('\tCHOSE WALLPAPER', 'yellow', attrs = ['bold'])
+        cprint('1. Random')
+        cprint('2. Ascending')
+        cprint('3. Descending')
+        inp = int(input())
+
+# Random option's code block. It will chose image file randomly from the 'path' list for infintive time until the user pressed ctrl+c to terminate the programme
+        if inp == 1:
+            while True:
+                path = lst[random.randint(0, len(lst)-1)] # The main code that chose the random file from the 'lst' list
+                cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+                os.system(cmd.format(path)) # The main code that use the command saved in the global variable 'cmd' and change the wallpaper
+                time.sleep(delay) # Make delay between changing wallpapers as the time mentioned by the user
+
+# Ascending option's code block. It will chose image file from index 0 to the last index from the 'lst' list for infinitive time until the user pressd ctrl+c to terminate the programme
+        elif inp == 2:
+            count = 0 # This variable keep track which image have to now set as wallpaper by saving the files index in the 'lst' list
+            while True: # This infinitive loop will change the wallpaper continiously until the user press ctrl+c to terminate the programme.
+                path = lst[count] # This will extrace the image file from the 'lst' list which have to be set as wallpaper now.
+                count += 1 # After the current wallpaper extracted from the 'lst' list this will increse the count's value by 1 for the next one
+                if count >= len(lst): # If the value of count become greater than the length of the 'lst' list the it will set the count to it's initial state 0
+                    count = 0
+                cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+                os.system(cmd.format(path)) # This will use the command saved in the cmd variable and will change the wallpaper
+                time.sleep(delay) # This will hold the function for the user defined time
+
+# Descending option's code block. It will chose image file from the last index to first index
+        elif inp == 3:
+            count = len(lst)-1
+            while True:
+                path = lst[count]
+                count -= 1
+                if count < 0:
+                    count = len(lst)-1
+                cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+                os.system(cmd.format(path))
+                time.sleep(delay)
+
+# If the user entered any invalid option in the option chosing stage in this function then this block will be run and then the function will call itself
         else:
-            timer(lst)
+            cprint('Invalid option !', 'red', attrs = ['bold'])
+            cprint('Wallpaper has been changed', 'magenta', attrs = ['bold'])
+            cprint('\nPress any key to continue...\nPress \'c\' to cancel...', 'blue', attrs = ['bold'])
+            if getch.getch() == 'c': # In this stage if the user press c then the function will be terminated and it will go back to the main menu, and for any other key press the function will call itself
+                return
+            else:
+                timer(lst)
 
-def help_scr():
-    pass
+# In the above try block if the user entered any value that can not be converted into integer then the valur error will be occured and then the following block will be run and then the function will be terminated
+    except:
+        cprint('Entered invalid input !', 'red', attrs = ['bold'])
+        cprint('Press any key to continue...', 'blue', attrs = ['bold'])
+        getch.getch()
 
+# The following lines of code will start the programme
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
         home_scr()
