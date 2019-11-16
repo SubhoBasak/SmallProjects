@@ -4,6 +4,7 @@ class App:
     def __init__(self, master):
         self.master = master
         self.master.title('SB Calculator')
+        self.master.iconbitmap('icon.ico')
         self.master.config(bg = '#636664')
         self.master.minsize(300, 400)
 

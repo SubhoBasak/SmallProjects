@@ -20,9 +20,13 @@ class TextEditor:
         self.file_name = None
         self.bg = 'white'
         self.fg = 'black'
+        self.insert = 'red'
+        self.insert_width = 2
 
         # text box
         self.text = tk.Text(relief = tk.FLAT, undo = True, font = self.font)
+        self.text.config(insertbackground = self.insert)
+        self.text.config(insertwidth = self.insert_width)
         self.text.pack(fill=tk.BOTH, expand=True)
         self.text.focus()
 
@@ -66,6 +70,12 @@ class TextEditor:
         self.color_menu.add_command(label = 'Change background color', command = self.change_bg)
         self.color_menu.add_command(label = 'Change foreground color', command = self.change_fg)
 
+        # cursor menu
+        self.cursor_menu = tk.Menu(self.view_menu, tearoff = False)
+        self.view_menu.add_cascade(label = 'Change cursor', menu = self.cursor_menu)
+        self.cursor_menu.add_command(label = 'Change color', command = self.change_cursor_color)
+        self.cursor_menu.add_command(label = 'Change width', command = self.change_cursor_width)
+
         # shortcuts
         self.master.bind('<Control-n>', self.new_file)
         self.master.bind('<Control-N>', self.new_file)
@@ -106,6 +116,11 @@ class TextEditor:
                     self.bg = tmp[0]
                     self.fg = tmp[1]
                     self.text.config(bg = self.bg, fg = self.fg)
+                tmp = settings.readline().strip().split(';')
+                if len(tmp) == 2:
+                    self.insert = tmp[0]
+                    self.insert_width = tmp[1]
+                    self.text.config(insertbackground = self.insert, insertwidth = self.insert_width)
 
     def new_file(self, event = None):
         if len(self.text.get(1.0, tk.END)) > 1:
@@ -202,6 +217,7 @@ class TextEditor:
             with open(os.path.join(self.home, '.SB_Text_Editor/settings.txt'), 'w') as settings:
                 tmp = ';'.join(map(lambda item: str(item), list(self.font_dict.values())))
                 tmp += '\n'+self.bg+';'+self.fg
+                tmp += '\n' + self.insert + ';' + str(self.insert_width)
                 settings.write(tmp)
 
     def change_bg(self, event = None):
@@ -212,6 +228,7 @@ class TextEditor:
             with open(os.path.join(self.home, '.SB_Text_Editor/settings.txt'), 'w') as settings:
                 tmp = ';'.join(map(lambda item: str(item), list(self.font_dict.values())))
                 tmp += '\n' + self.bg + ';' + self.fg
+                tmp += '\n' + self.insert + ';' + str(self.insert_width)
                 settings.write(tmp)
 
     def change_fg(self, event = None):
@@ -221,13 +238,73 @@ class TextEditor:
             self.text.config(fg = self.fg)
             with open(os.path.join(self.home, '.SB_Text_Editor/settings.txt'), 'w') as settings:
                 tmp = ';'.join(map(lambda item: str(item), list(self.font_dict.values())))
-                tmp += '\n'+self.bg+';'+self.fg
+                tmp += '\n'+self.bg+';'+ self.fg
+                tmp += '\n' + self.insert + ';' + str(self.insert_width)
                 settings.write(tmp)
+
+    def change_cursor_color(self):
+        color = colorchooser.askcolor()
+        if color[1] != None:
+            self.insert = color[1]
+            self.text.config(insertbackground = self.insert)
+            with open(os.path.join(self.home, '.SB_Text_Editor/settings.txt'), 'w') as settings:
+                tmp = ';'.join(map(lambda item: str(item), list(self.font_dict.values())))
+                tmp += '\n' + self.bg + ';' + self.fg
+                tmp += '\n' + self.insert + ';' + str(self.insert_width)
+                settings.write(tmp)
+
+    def make_small(self):
+        self.insert_width = 1
+        self.text.config(insertwidth = self.insert_width)
+
+        with open(os.path.join(self.home, '.SB_Text_Editor/settings.txt'), 'w') as settings:
+            tmp = ';'.join(map(lambda item: str(item), list(self.font_dict.values())))
+            tmp += '\n' + self.bg + ';' + self.fg
+            tmp += '\n' + self.insert + ';' + str(self.insert_width)
+            settings.write(tmp)
+
+        self.tmp_window.destroy()
+
+    def make_medium(self):
+        self.insert_width = 3
+        self.text.config(insertwidth = self.insert_width)
+
+        with open(os.path.join(self.home, '.SB_Text_Editor/settings.txt'), 'w') as settings:
+            tmp = ';'.join(map(lambda item: str(item), list(self.font_dict.values())))
+            tmp += '\n' + self.bg + ';' + self.fg
+            tmp += '\n' + self.insert + ';' + str(self.insert_width)
+            settings.write(tmp)
+
+        self.tmp_window.destroy()
+
+    def make_large(self):
+        self.insert_width = 5
+        self.text.config(insertwidth = self.insert_width)
+
+        with open(os.path.join(self.home, '.SB_Text_Editor/settings.txt'), 'w') as settings:
+            tmp = ';'.join(map(lambda item: str(item), list(self.font_dict.values())))
+            tmp += '\n' + self.bg + ';' + self.fg
+            tmp += '\n' + self.insert + ';' + str(self.insert_width)
+            settings.write(tmp)
+
+        self.tmp_window.destroy()
+
+    def change_cursor_width(self):
+        self.tmp_window = tk.Toplevel()
+        self.tmp_window.title('Select size')
+        self.tmp_window.resizable(False, False)
+
+        button_1 = tk.Button(self.tmp_window, text = 'Small', command = self.make_small)
+        button_1.pack(side = tk.LEFT)
+
+        button_2 = tk.Button(self.tmp_window, text='Medium', command=self.make_medium)
+        button_2.pack(side = tk.LEFT)
+
+        button_3 = tk.Button(self.tmp_window, text='Large', command=self.make_large)
+        button_3.pack(side = tk.LEFT)
 
 if __name__ == '__main__':
     root = tk.Tk()
-    icn = tk.PhotoImage(file = 'D://Playground//Learning_project//icon.png')
-    root.iconphoto(False, icn)
     text_editor = TextEditor(root)
     text_editor.load()
     root.mainloop()

@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['text_editor.py'],
-             pathex=['D:\\Playground\\Learning_project'],
+             pathex=['D:\\my_github\\Small_projects\\TextEditor'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -19,15 +19,19 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
           [],
+          exclude_binaries=True,
           name='text_editor',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          upx_exclude=[],
-          runtime_tmpdir=None,
           console=False , icon='icon.ico')
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=True,
+               upx_exclude=[],
+               name='text_editor')
