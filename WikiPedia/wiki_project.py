@@ -1,4 +1,6 @@
 import os
+import Queue
+import threading
 import wikipedia as wiki
 from tkinter import *
 from tkinter import messagebox
@@ -9,6 +11,7 @@ from tkfontchooser import askfont
 BG_COLOR = 'gray'
 TEXT_BG_COLOR = 'white'
 TEXT_FG_COLOR = 'black'
+result = 'Empty'
 
 home = None
 
@@ -36,6 +39,10 @@ def init_programme():
             TEXT_BG_COLOR = colors[1]
             TEXT_FG_COLOR = colors[2]
 
+def search_thread(inp):
+    global result
+    result = wiki.summary(inp)
+
 def search():
     inp = entry.get()
     if inp == None or len(inp) == 0:
@@ -43,12 +50,14 @@ def search():
     text_box.delete(1.0, END)
     text_box.insert(INSERT, 'Searched for : '+inp+'\n'+'='*50+'\n')
     try:
-        result = wiki.summary(inp)
+        t1 = threading.Thread(target = search_thread, args = (inp, ))
+        t1.start()
         with open(os.path.join(home, '.wikipedia/history.txt'), 'a+') as history_file:
             history_file.write(inp+'<;>')
         text_box.config(fg = TEXT_FG_COLOR)
         text_box.insert(INSERT, result)
-    except:
+    except Exception as exp:
+        print(exp)
         text_box.config(fg = 'red')
         text_box.insert(INSERT, 'Something went wrong !\nPlease check your entered keyword\'s spelling or the internet connection')
 
@@ -175,6 +184,8 @@ button.pack(side = RIGHT)
 
 text_box.pack(side = LEFT)
 scroll_bar.pack(side = RIGHT, fill = Y)
+
+entry.focus()
 
 if __name__ == '__main__':
     init_programme()
