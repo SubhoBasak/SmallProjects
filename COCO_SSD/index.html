@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object Detection | COCO SSD</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+</head>
+<body>
+    <script>
+        let modelDetector;
+        let detectedObjects = [];
+        let vdo;
+        let cnv, ctx;
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const init = async () => {
+            vdo = await getVideo();
+            modelDetector = await ml5.objectDetector('cocossd', startDetecting)
+
+            cnv = canvasConstructor(width, height);
+            ctx = cnv.getContext('2d');
+        }
+
+        window.onload = init;
+
+        const startDetecting = () => {
+            alert('detector loaded successfully!');
+            detect();
+        }
+
+        const detect = () => {
+            modelDetector.detect(vdo, function (err, output) {
+                if (err) return console.log(err);
+
+                detectedObjects = output;
+                if (detectedObjects) draw();
+
+                detect();
+            });
+        }
+
+        const draw = () => {
+            ctx.fillStyle = "#222"
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.drawImage(vdo, 0, 0);
+            for (let i = 0; i < detectedObjects.length; i++) {
+
+                ctx.font = "22px Georgia";
+                ctx.fillStyle = "blue";
+                ctx.fillText(detectedObjects[i].label, detectedObjects[i].x + 6, detectedObjects[i].y + 12);
+
+                ctx.beginPath();
+                ctx.rect(detectedObjects[i].x, detectedObjects[i].y, detectedObjects[i].width, detectedObjects[i].height);
+                ctx.strokeStyle = "blue";
+                ctx.stroke();
+                ctx.closePath();
+            }
+        }
+
+        async function getVideo() {
+            const vdo = document.createElement('video');
+            vdo.style.display = "none";
+            vdo.width = width;
+            vdo.height = height;
+            document.body.appendChild(vdo);
+
+            const vdoInp = await navigator.mediaDevices.getUserMedia({
+                video: {width, height}
+            })
+            vdo.srcObject = vdoInp;
+            vdo.play();
+
+            return vdo;
+        }
+
+        function canvasConstructor(ww, hh) {
+            const cnv = document.createElement("canvas");
+            cnv.width = ww;
+            cnv.height = hh;
+            document.body.appendChild(cnv);
+            return cnv;
+        }
+    </script>
+</body>
+</html>
